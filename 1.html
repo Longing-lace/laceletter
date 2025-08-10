@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <style>
         @font-face { font-family: 'bulangni'; src: url('') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        :root { --screen-width: 350px; --screen-height: 650px; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #9EAABA; }
+        :root { --screen-width: 350px; --screen-height: 650px; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #8696A7; }
         html { height: 100%; overflow: hidden; }
 
 /* ▼▼▼ 请用下面这【一整块】全新的代码，替换掉所有旧的 body, phone-frame, phone-screen 等样式 ▼▼▼ */
@@ -2622,11 +2622,11 @@ body {
 
 /* 1. 卡片总容器：这里负责定义整体的背景色和边框 */
 .memory-card {
-    background-color: #fffaf0; /* 统一的、温暖的米黄色背景 */
+    background-color: #f6f8f9; /* 统一的、温暖的米蓝色背景 */
     border-radius: 12px;
     padding: 15px; /* 在卡片四周留出内边距 */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    border-left: 5px solid #ffb74d; 
+    box-shadow: 0 2px 6px rgba(251, 249, 249, 0.07);
+    border-left: 5px solid #8696A7; 
     display: flex; /* 让它成为flex容器，方便内部元素排列 */
     flex-direction: column; /* 让头部和内容垂直堆叠 */
     gap: 8px; /* 在头部和内容之间创造一个自然的间距 */
@@ -2634,21 +2634,21 @@ body {
 
 /* 2. 头部容器：现在只负责布局和分割线 */
 .memory-card .header {
-    border-bottom: 1px solid rgba(217, 129, 0, 0.15); /* 分割线颜色可以稍微加深一点 */
+    border-bottom: 1px solid rgba(109, 110, 131, 0.15); /* 分割线颜色可以稍微加深一点 */
     padding-bottom: 8px; 
 }
 
 /* 3. 日期样式 (保持不变) */
 .memory-card .header .date {
     font-size: 11px;
-    color: #a1887f;
+    color: #8696A7;
     margin-bottom: 4px; 
 }
 
 /* 4. 作者样式 (保持不变) */
 .memory-card .header .author {
     font-weight: 600;
-    color: #d98100;
+    color: #8696A7;
     font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
@@ -2659,17 +2659,17 @@ body {
 .memory-card .content {
     font-size: 14px;
     line-height: 1.7;
-    color: #5d4037;
+    color: #8696A7;
     white-space: pre-wrap;
 }
 
 /* === 【全新】约定/倒计时卡片样式 === */
 .countdown-card {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #8696A7, #8696A7);
     color: white;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+    box-shadow: 0 4px 15px rgba(104, 97, 111, 0.4);
     text-align: center;
     position: relative;
     overflow: hidden;
