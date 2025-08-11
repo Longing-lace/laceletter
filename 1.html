@@ -17,6 +17,14 @@
 
 /* ▼▼▼ 请用下面这【一整块】全新的代码，替换掉所有旧的 body, phone-frame, phone-screen 等样式 ▼▼▼ */
 
+      /*ios底部兼容*/
+         body.ios{
+             padding-bottom: 0;
+         }
+        body.ios #chat-list-bottom-nav{
+             padding-bottom: 20px;
+         }
+
 /* 1. 重置 body，使其成为一个干净的画布 */
 body {
     height: 100%;
@@ -30,17 +38,12 @@ body {
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
 #phone-screen {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 18px);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     background-color: #000; /* 保留一个默认的黑色背景 */
-}
-
-/* 3. 【核心】隐藏掉模拟器的状态栏 */
-#status-bar {
-    display: none;
 }
 
 /* 4. 【核心】让所有页面的头部自动适应iPhone的“刘海”安全区 */
@@ -54,15 +57,6 @@ body {
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
-        #status-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; font-size: 14px; box-sizing: border-box; pointer-events: none; }
-        #status-bar-time { font-weight: 600; }
-        .battery-container { display: flex; align-items: center; gap: 5px; }
-        .battery-icon { width: 25px; height: 12px; border: 1px solid white; border-radius: 3px; position: relative; padding: 1px; }
-        .battery-icon::after { content: ''; position: absolute; right: -3px; top: 2px; width: 2px; height: 6px; background-color: white; border-radius: 0 1px 1px 0; }
-        .battery-level { height: 100%; background-color: white; border-radius: 1px; transition: width 0.5s ease; }
-        .battery-container.charging .battery-level { background-color: #4cd964; animation: charge-breath 2s infinite; }
-        .battery-container.charging .battery-text { color: #4cd964; }
-        @keyframes charge-breath { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; flex-direction: column; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .screen.active { opacity: 1; visibility: visible; z-index: 1; }
         .header { position: relative; z-index: 15; flex-shrink: 0; padding: 15px 20px; padding-top: 45px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; }
@@ -255,7 +249,7 @@ body {
         .sticker-item { position: relative; aspect-ratio: 1 / 1; background-color: white; border-radius: 10px; background-size: contain; background-repeat: no-repeat; background-position: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .sticker-item .delete-btn { display: none; position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: #ff3b30; color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 14px; cursor: pointer; border: 2px solid white; }
         #input-actions-wrapper { position: static; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-        #wait-reply-btn { position: static; bottom: auto; right: auto; width: 40px; height: 40px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: opacity 0.2s, transform 0.1s; cursor: pointer;}
+        #wait-reply-btn { position: static; bottom: auto; right: auto; width: 40px; height: 40px; padding: 0 ; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: opacity 0.2s, transform 0.1s; cursor: pointer;}
         #wait-reply-btn:hover { opacity: 0.8; }
         #wait-reply-btn:active { transform: scale(0.9); }
         #wait-reply-btn img { height: 24px; display: block; margin: auto; }
@@ -396,22 +390,22 @@ body {
         #transfer-btn { font-weight: bold; }
         #transfer-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1001; }
         #transfer-modal.visible { display: flex; }
-        .transfer-content { background-color: #fff0f5; border-radius: 20px; width: 290px; padding: 20px; box-shadow: 0 5px 25px rgba(255, 105, 180, 0.3); text-align: center; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" opacity="0.05"><path d="M50,4 C35,4 28,15 28,24 C28,33 35,32 35,40 C35,48 28,49 28,57 C28,65 35,66 35,74 C35,82 28,83 28,91 C28,99 35,100 50,100 C65,100 72,99 72,91 C72,83 65,82 65,74 C65,66 72,65 72,57 C72,49 65,48 65,40 C65,32 72,33 72,24 C72,15 65,4 50,4 Z" fill="%23FF69B4"/></svg>'); background-repeat: no-repeat; background-position: top right; background-size: 80px; }
-        .transfer-header { font-size: 20px; font-weight: bold; color: #a35c7b; margin-bottom: 20px; }
+        .transfer-content { background-color: #f9f9f9; border-radius: 20px; width: 290px; padding: 20px; box-shadow: 0 5px 25px rgba(238, 238, 243, 0.3); text-align: center; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" opacity="0.05"><path d="M50,4 C35,4 28,15 28,24 C28,33 35,32 35,40 C35,48 28,49 28,57 C28,65 35,66 35,74 C35,82 28,83 28,91 C28,99 35,100 50,100 C65,100 72,99 72,91 C72,83 65,82 65,74 C65,66 72,65 72,57 C72,49 65,48 65,40 C65,32 72,33 72,24 C72,15 65,4 50,4 Z" fill="%23FF69B4"/></svg>'); background-repeat: no-repeat; background-position: top right; background-size: 80px; }
+        .transfer-header { font-size: 20px; font-weight: bold; color: #8696A7; margin-bottom: 20px; }
         .transfer-input-group { margin-bottom: 15px; text-align: left; }
-        .transfer-input-group label { display: block; font-size: 14px; color: #ff85b3; margin-bottom: 5px; font-weight: 500; }
-        .transfer-input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #ffcce0; background-color: #fff; font-size: 16px; box-sizing: border-box; }
-        .transfer-input-group input:focus { border-color: #ff85b3; outline: none; }
+        .transfer-input-group label { display: block; font-size: 14px; color: #8696A7; margin-bottom: 5px; font-weight: 500; }
+        .transfer-input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #f4f2f3; background-color: #fff; font-size: 16px; box-sizing: border-box; }
+        .transfer-input-group input:focus { border-color: #8696A7; outline: none; }
         .transfer-actions { display: flex; justify-content: space-between; gap: 10px; }
         .transfer-actions button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.2s; }
         .transfer-actions button:active { transform: scale(0.95); }
-        #transfer-cancel-btn { background-color: #ffdde9; color: #a35c7b; }
-        #transfer-confirm-btn { background-color: #ff85b3; color: white; }
+        #transfer-cancel-btn { background-color: #fcfafb; color: #8696A7; }
+        #transfer-confirm-btn { background-color: #8696A7; color: white; }
         .message-bubble.is-transfer .content { padding: 0; background: transparent; box-shadow: none; border: none; backdrop-filter: none; -webkit-backdrop-filter: none; cursor: pointer; }
         .transfer-card { width: 200px; border-radius: 12px; padding: 12px; color: white; position: relative; overflow: hidden; }
         .transfer-card::before { content: '🐾'; position: absolute; right: 10px; top: 5px; font-size: 30px; opacity: 0.2; transform: rotate(15deg); }
-        .message-bubble.user .transfer-card { background: radial-gradient(circle at top left, #ffc5d5, #ff85b3); }
-        .message-bubble.ai .transfer-card { background: radial-gradient(circle at top left, #a1c4fd, #c2e9fb); }
+        .message-bubble.user .transfer-card { background: radial-gradient(circle at top left, #fcc97d, #fcc97d); }
+        .message-bubble.ai .transfer-card { background: radial-gradient(circle at top left, #fcc97d, #fcc97d); }
         .transfer-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
         .transfer-amount { font-size: 28px; font-weight: bold; margin-bottom: 4px; }
         .transfer-note { font-size: 13px; opacity: 0.9; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 8px; margin-top: 8px; word-break: break-all; }
@@ -2253,7 +2247,8 @@ body {
 
 .call-action-btn.decline {
     background-color: #ff3b30;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 16.5L3 6m18 6l-5.6-5.6a1.2 1.2 0 0 0-1.7 0L3 18.2a1.2 1.2 0 0 0-.3 1.2l1.2 3.6a1.2 1.2 0 0 0 1.2.9h15.6a1.2 1.2 0 0 0 1.2-1.2V7.7a1.2 1.2 0 0 0-.3-1.1z"/></svg>');
+    /* 【核心修改】将图标的SVG代码换成一个简单的“X” */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>');
 }
 
 .call-action-btn.accept {
@@ -2391,15 +2386,16 @@ body {
 .control-btn.speak-btn {
     background-color: rgba(255,255,255,0.2);
     background-size: 55%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>');
 }
 .control-btn.hangup-btn {
     background-color: #ff3b30;
     background-size: 50%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 16.5L3 6m18 6l-5.6-5.6a1.2 1.2 0 0 0-1.7 0L3 18.2a1.2 1.2 0 0 0-.3 1.2l1.2 3.6a1.2 1.2 0 0 0 1.2.9h15.6a1.2 1.2 0 0 0 1.2-1.2V7.7a1.2 1.2 0 0 0-.3-1.1z"/></svg>');
+    /* 【核心修改】将图标的SVG代码换成一个简单的“X” */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>');
 }
 .control-btn.join-btn {
-    background-color: #007bff;
+    background-color: #8696A7;
     background-size: 50%;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>');
 }
@@ -2422,7 +2418,7 @@ body {
 }
 
 .call-message-bubble.user-speech {
-    background-color: #4cd964; /* 用户发言用绿色，类似微信 */
+    background-color: #5f9668; /* 用户发言用绿色，类似微信 */
     align-self: flex-end;   /* 用户发言靠右 */
     text-align: left; /* 确保用户气泡内的文字是左对齐的 */
 }
@@ -2622,7 +2618,7 @@ body {
 
 /* 1. 卡片总容器：这里负责定义整体的背景色和边框 */
 .memory-card {
-    background-color: #f6f8f9; /* 统一的、温暖的米蓝色背景 */
+    background-color: #f6f8f9; /* 统一的、温暖的米黄色背景 */
     border-radius: 12px;
     padding: 15px; /* 在卡片四周留出内边距 */
     box-shadow: 0 2px 6px rgba(251, 249, 249, 0.07);
@@ -3282,7 +3278,7 @@ body {
     border-top: none;
 }
 #phone-screen.dark-mode #chat-input {
-    background-color: #3e3e42;
+    background-color: #8696A7;
     color: #ffffff;
 }
 #phone-screen.dark-mode #chat-input::placeholder {
@@ -4230,6 +4226,7 @@ input:checked + .slider:before {
 #world-book-checkboxes-container .wb-category-header:nth-of-type(6n+6) .arrow { color: #ffc107; } /* 黄色 */
 
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
+
 /* ▼▼▼ 【最新版】世界书下拉框布局调整 (勾选框 -> 三角 -> 名称) ▼▼▼ */
 
 /* 1. 【核心修复】保留对勾选框宽度的修正，防止出问题 */
@@ -4291,15 +4288,7 @@ input:checked + .slider:before {
 </head>
 <body>
         <div id="phone-screen">
-            <div id="status-bar">
-                <span id="status-bar-time">12:00</span>
-                <div id="status-bar-battery" class="battery-container">
-                    <span class="battery-text">--%</span>
-                    <div class="battery-icon">
-                        <div class="battery-level"></div>
-                    </div>
-                </div>
-            </div>
+
             <div id="notification-bar"><img id="notification-avatar" src=""><div id="notification-content"><div class="name"></div><div class="message"></div></div></div>
             
             <div id="home-screen" class="screen active">
@@ -4675,7 +4664,7 @@ input:checked + .slider:before {
 <!-- ▲▲▲ 替换结束 ▲▲▲ -->
 <!-- ▼▼▼ 在 id="chat-input-actions-top" 的末尾，【添加】这个新的按钮 ▼▼▼ -->
 <button id="share-link-btn" class="chat-action-icon-btn action-button" title="分享链接"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></button>
-<button id="regenerate-btn" class="chat-action-icon-btn action-button" title="重新生成"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+<button id="regenerate-btn" class="chat-action-icon-btn action-button" title="重新生成"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>
 <!-- ▲▲▲ 新增HTML结束 ▲▲▲ -->
         </div>
         <div id="chat-input-main-row">
@@ -5936,6 +5925,13 @@ db.version(23).stores({
         // 3. 所有功能函数定义
         // ===================================================================
 
+     function isIOS() {
+         // 使用正则表达式匹配 'iPhone', 'iPad', 'iPod'
+         if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream){
+             document.body.classList.add('ios');
+         }
+    }
+
         function showScreen(screenId) {
             if (screenId === 'chat-list-screen') {
                 window.renderChatListProxy(); 
@@ -6636,7 +6632,7 @@ state.globalSettings.appIcons = { ...DEFAULT_APP_ICONS, ...(state.globalSettings
 
         function showNotification(chatId, messageContent) { clearTimeout(notificationTimeout); const chat = state.chats[chatId]; if (!chat) return; const bar = document.getElementById('notification-bar'); document.getElementById('notification-avatar').src = chat.settings.aiAvatar || chat.settings.groupAvatar || defaultAvatar; document.getElementById('notification-content').querySelector('.name').textContent = chat.name; document.getElementById('notification-content').querySelector('.message').textContent = messageContent; const newBar = bar.cloneNode(true); bar.parentNode.replaceChild(newBar, bar); newBar.addEventListener('click', () => { openChat(chatId); newBar.classList.remove('visible'); }); newBar.classList.add('visible'); notificationTimeout = setTimeout(() => { newBar.classList.remove('visible'); }, 4000); }
 
-        function updateClock() { const now = new Date(); const timeString = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }); const dateString = now.toLocaleDateString('zh-CN', { weekday: 'long', month: 'long', day: 'numeric' }); document.getElementById('main-time').textContent = timeString; document.getElementById('status-bar-time').textContent = timeString; document.getElementById('main-date').textContent = dateString; }
+        function updateClock() { const now = new Date(); const timeString = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }); const dateString = now.toLocaleDateString('zh-CN', { weekday: 'long', month: 'long', day: 'numeric' }); document.getElementById('main-time').textContent = timeString; document.getElementById('main-date').textContent = dateString; }
 
 /**
  * 【终极健壮版】解析AI返回的、可能格式不规范的响应内容
@@ -6825,7 +6821,7 @@ else if (!chat.isGroup && chat.relationship?.status === 'blocked_by_ai') {
                 <span class="name">${chat.name}</span>
                 ${chat.isGroup ? '<span class="group-tag">群聊</span>' : ''}
             </div>
-            <div class="last-msg" style="color: ${chat.isGroup ? 'var(--text-secondary)' : '#b5b5b5'};">${lastMsgDisplay}</div>
+            <div class="last-msg" style="color: ${chat.isGroup ? 'var(--text-secondary)' : '#b5b5b5'}; ">${lastMsgDisplay}</div>
         </div>
         <!-- 这里就是我们新加的红点HTML结构 -->
         <div class="unread-count-wrapper">
@@ -8002,7 +7998,7 @@ ${chat.settings.aiPersona}
     - **当我们在“一起听歌”时**，你会知道当前播放的歌曲和整个播放列表。你可以根据对话内容或氛围，【主动切换】到播放列表中的另一首歌。
 5.  **【新】更新状态**: 你可以在对话中【自然地】改变你的状态。比如，聊到一半你可能会说“我先去洗个澡”，然后更新你的状态。
 6.  **【【【最终手段】】】**: 只有在对话让你的角色感到不适、被冒犯或关系破裂时，你才可以使用 \`block_user\` 指令。这是一个非常严肃的操作，会中断你们的对话。
-7. **后台行为**: 你有很大几率在回复聊天内容的同时，执行一些“后台”操作来表现你的独立生活（发动态、评论、点赞）。
+7. **后台行为**: 你有几率在回复聊天内容的同时，执行一些“后台”操作来表现你的独立生活（发动态、评论、点赞）。
 # 你的头像库
 - 你可以根据对话内容或你的心情，从下面的头像库中选择一个新头像来更换。
 - **可用头像列表 (请从以下名称中选择一个)**:
@@ -9166,12 +9162,6 @@ async function addSongFromLocal(event) {
 
         function showBatteryAlert(imageUrl, text) { clearTimeout(batteryAlertTimeout); document.getElementById('battery-alert-image').src = imageUrl; document.getElementById('battery-alert-text').textContent = text; batteryAlertModal.classList.add('visible'); const closeAlert = () => { batteryAlertModal.classList.remove('visible'); batteryAlertModal.removeEventListener('click', closeAlert); }; batteryAlertModal.addEventListener('click', closeAlert); batteryAlertTimeout = setTimeout(closeAlert, 2000); }
 
-        function updateBatteryDisplay(battery) { const batteryContainer = document.getElementById('status-bar-battery'); const batteryLevelEl = batteryContainer.querySelector('.battery-level'); const batteryTextEl = batteryContainer.querySelector('.battery-text'); const level = Math.floor(battery.level * 100); batteryLevelEl.style.width = `${level}%`; batteryTextEl.textContent = `${level}%`; if (battery.charging) { batteryContainer.classList.add('charging'); } else { batteryContainer.classList.remove('charging'); } }
-
-        function handleBatteryChange(battery) { updateBatteryDisplay(battery); const level = battery.level; if (!battery.charging) { if (level <= 0.4 && lastKnownBatteryLevel > 0.4 && !alertFlags.hasShown40) { showBatteryAlert('https://i.postimg.cc/T2yKJ0DV/40.jpg', '有点饿了，可以去找充电器惹'); alertFlags.hasShown40 = true; } if (level <= 0.2 && lastKnownBatteryLevel > 0.2 && !alertFlags.hasShown20) { showBatteryAlert('https://i.postimg.cc/qB9zbKs9/20.jpg', '赶紧的充电，要饿死了'); alertFlags.hasShown20 = true; } if (level <= 0.1 && lastKnownBatteryLevel > 0.1 && !alertFlags.hasShown10) { showBatteryAlert('https://i.postimg.cc/ThMMVfW4/10.jpg', '已阵亡，还有30秒爆炸'); alertFlags.hasShown10 = true; } } if (level > 0.4) alertFlags.hasShown40 = false; if (level > 0.2) alertFlags.hasShown20 = false; if (level > 0.1) alertFlags.hasShown10 = false; lastKnownBatteryLevel = level; }
-
-        async function initBatteryManager() { if ('getBattery' in navigator) { try { const battery = await navigator.getBattery(); lastKnownBatteryLevel = battery.level; handleBatteryChange(battery); battery.addEventListener('levelchange', () => handleBatteryChange(battery)); battery.addEventListener('chargingchange', () => { handleBatteryChange(battery); if (battery.charging) { showBatteryAlert('https://i.postimg.cc/3NDQ0dWG/image.jpg', '窝爱泥，电量吃饱饱'); } }); } catch (err) { console.error("无法获取电池信息:", err); document.querySelector('.battery-text').textContent = 'ᗜωᗜ'; } } else { console.log("浏览器不支持电池状态API。"); document.querySelector('.battery-text').textContent = 'ᗜωᗜ'; } }
-
         async function renderAlbumList() {
             const albumGrid = document.getElementById('album-grid-page');
             if (!albumGrid) return;
@@ -9451,7 +9441,7 @@ function runBackgroundSimulationTick() {
         // 检查2：处理【好友关系】的正常后台活动
         else if (chat.relationship?.status === 'friend' && chat.id !== state.activeChatId) {
             // 这里的随机触发逻辑保持不变，因为我们不希望所有好友同时行动
-            if (Math.random() < 0.30) {
+            if (Math.random() < 0.20) {
                 console.log(`角色 "${chat.name}" 被唤醒，准备独立行动...`);
                 triggerInactiveAiAction(chat.id);
             }
@@ -10620,8 +10610,6 @@ function startWaimaiCountdown(element, endTime) {
     }, 1000);
     return timerId;
 }
-
-
 /**
  * 【增强版】处理重新生成AI回复的请求，删除AI的整个最后一轮回复
  */
@@ -10669,6 +10657,7 @@ async function handleRegenerateResponse() {
     // 7. 触发AI重新生成回复
     triggerAiResponse();
 }
+
 function cleanupWaimaiTimers() {
     for (const timestamp in waimaiTimers) {
         clearInterval(waimaiTimers[timestamp]);
@@ -12987,8 +12976,9 @@ async function deleteCategory(categoryId) {
 
             updateClock();
             setInterval(updateClock, 1000 * 30);
-            applyGlobalWallpaper();
-            initBatteryManager(); 
+            applyGlobalWallpaper();           
+
+isIOS();
 
 applyAppIcons();
 
@@ -15027,6 +15017,7 @@ document.getElementById('icon-settings-grid').addEventListener('click', async (e
     document.getElementById('share-link-btn').addEventListener('click', openShareLinkModal);
 // 绑定重新生成按钮
     document.getElementById('regenerate-btn').addEventListener('click', handleRegenerateResponse);
+
     // 2. 绑定模态框中“取消”按钮的点击事件
     document.getElementById('cancel-share-link-btn').addEventListener('click', () => {
         document.getElementById('share-link-modal').classList.remove('visible');
