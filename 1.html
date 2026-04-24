@@ -461,7 +461,7 @@
                         <div class="snippet-body" id="body-${snippet.id}">
                             <div class="tags-container" style="margin-bottom: 15px;">${snippetTags}</div>
                             <div class="snippet-content-wrapper">
-                                <button class="btn-copy" onclick="copyCode(this, \`${snippet.code.replace(/`/g, '\\`')}\`)" title="一键复制">
+                                <button class="btn-copy" onclick="copyCode(this, '${snippet.id}')" title="一键复制">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 4V2h14v14h-2V4H7zM3 6h14v14H3V6zm2 2v10h10V8H5z"></path></svg>
                                 </button>
                                 <div class="snippet-content">${highlightCommentsAndHTML(snippet.code)}</div>
@@ -579,12 +579,62 @@
             }
         }
 
-        function copyCode(btn, code) {
-            navigator.clipboard.writeText(code).then(() => {
+        /* 修复点：全新的多环境兼容复制方案 */
+        function copyCode(btn, id) {
+            const snippet = state.snippets.find(s => s.id === id);
+            if (!snippet) return;
+            
+            const codeToCopy = snippet.code;
+
+            const showSuccess = () => {
                 const originalSvg = btn.innerHTML;
                 btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"></path></svg>`;
                 setTimeout(() => btn.innerHTML = originalSvg, 1500);
-            });
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(codeToCopy)
+                    .then(showSuccess)
+                    .catch(err => fallbackCopy(codeToCopy, showSuccess));
+            } else {
+                fallbackCopy(codeToCopy, showSuccess);
+            }
+        }
+
+        /* 兼容 iOS / 手机浏览器底层的安全复制方法 */
+        function fallbackCopy(text, successCallback) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // 确保不可见，且不引起页面弹跳或滚动
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
+            
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    successCallback();
+                } else {
+                    alert('复制失败，请尝试手动长按全选复制');
+                }
+            } catch (err) {
+                alert('您的设备不支持一键复制，请长按全选复制');
+            }
+            
+            document.body.removeChild(textArea);
         }
 
         function exportData() {
