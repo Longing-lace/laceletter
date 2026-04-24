@@ -56,8 +56,17 @@
         }
 
         textarea {
-            resize: vertical;
+            resize: none;
             min-height: 150px;
+        }
+
+        /* ----------------------------------
+           针对编辑框的最高高度限制 (60%视口高度)
+           ---------------------------------- */
+        #editCode {
+            flex: 1;
+            min-height: 250px;
+            resize: none;
         }
 
         header {
@@ -177,6 +186,9 @@
             position: relative;
         }
 
+        /* ----------------------------------
+           针对展示代码区的最高高度限制 (80%视口高度)
+           ---------------------------------- */
         .snippet-content {
             background-color: #f5f5f5;
             padding: 15px;
@@ -185,6 +197,25 @@
             word-break: break-all;
             font-size: 14px;
             line-height: 1.6;
+            
+            /* 增加最大高度限制并开启内部滚动 */
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 美化滚动条，契合极简风 */
+        .snippet-content::-webkit-scrollbar,
+        #editCode::-webkit-scrollbar {
+            width: 6px;
+        }
+        .snippet-content::-webkit-scrollbar-thumb,
+        #editCode::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        .snippet-content::-webkit-scrollbar-track,
+        #editCode::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         /* 优化后的注释样式：更浅的灰色 + 斜体 */
@@ -200,6 +231,8 @@
             background: #fff;
             padding: 5px;
             border-radius: 4px;
+            /* 确保复制按钮位于滚动层之上 */
+            z-index: 10;
         }
 
         .modal {
@@ -227,6 +260,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -241,6 +276,12 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .form-group:has(#editCode) {
+            flex: 1 1 auto;
+            min-height: 0;
         }
 
         .form-group label {
@@ -579,7 +620,6 @@
             }
         }
 
-        /* 修复点：全新的多环境兼容复制方案 */
         function copyCode(btn, id) {
             const snippet = state.snippets.find(s => s.id === id);
             if (!snippet) return;
@@ -601,12 +641,10 @@
             }
         }
 
-        /* 兼容 iOS / 手机浏览器底层的安全复制方法 */
         function fallbackCopy(text, successCallback) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
             
-            // 确保不可见，且不引起页面弹跳或滚动
             textArea.style.position = "fixed";
             textArea.style.top = "0";
             textArea.style.left = "0";
