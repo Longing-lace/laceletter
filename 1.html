@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="https://iili.io/B4t9G6P.md.png">
     
     <title>极简 CSS 管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* 确保 @import 在 CSS 的最顶端 */
         @import url("https://fontsapi.zeoseven.com/285/main/result.css");
@@ -419,20 +420,31 @@
     </div>
 
     <script>
+        const SUPABASE_URL = 'https://bgimdvzikaoauuvgsehn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnaW1kdnppa2FvYXV1dmdzZWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzA0OTcsImV4cCI6MjA5MjYwNjQ5N30.ee_yctmUGZso5oVqoCdXCFcsC7baWzO-HP6-AP0xOF0';
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let state = { tags: [], snippets: [], activeTag: null, searchQuery: '' };
 
-        function loadData() {
-            const saved = localStorage.getItem('cssMgrData');
-            if (saved) {
-                state = { ...state, ...JSON.parse(saved) };
-                if(!state.tags) state.tags = [];
-                if(!state.snippets) state.snippets = [];
+        async function loadData() {
+            const { data, error } = await db
+                .from('app_data')
+                .select('data')
+                .eq('id', 'css_mgr')
+                .single();
+            if (data && data.data) {
+                state = { ...state, ...data.data };
+                if (!state.tags) state.tags = [];
+                if (!state.snippets) state.snippets = [];
             }
             renderAll();
         }
 
-        function saveData() {
-            localStorage.setItem('cssMgrData', JSON.stringify({ tags: state.tags, snippets: state.snippets }));
+        async function saveData() {
+            await db.from('app_data').upsert({
+                id: 'css_mgr',
+                data: { tags: state.tags, snippets: state.snippets }
+            });
             renderAll();
         }
 
