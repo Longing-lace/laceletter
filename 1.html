@@ -10,13 +10,10 @@
     <link rel="apple-touch-icon" href="https://iili.io/B4t9G6P.md.png">
     
     <title>极简 CSS 管理</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 确保 @import 在 CSS 的最顶端 */
         @import url("https://fontsapi.zeoseven.com/285/main/result.css");
         @import url("https://fontsapi.zeoseven.com/327/main/result.css");
 
-        /* 全局基础重置与黑白灰配色 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -26,7 +23,6 @@
             color: #000;
         }
 
-        /* 显式指定所有包含文字的元素应用该字体 */
         body, button, input, textarea, select, .snippet-content {
             font-family: "Abyssinica SIL", "Noto Serif CJK", sans-serif;
             font-weight: normal;
@@ -61,9 +57,6 @@
             min-height: 150px;
         }
 
-        /* ----------------------------------
-           针对编辑框的最高高度限制 (60%视口高度)
-           ---------------------------------- */
         #editCode {
             flex: 1;
             min-height: 250px;
@@ -119,13 +112,14 @@
             align-items: center;
             gap: 5px;
             border-radius: 4px;
+            transition: background-color 0.15s;
         }
 
         .tag.active {
             background-color: #000;
             color: #fff;
         }
-        
+
         .tag.active svg {
             fill: #fff;
         }
@@ -134,6 +128,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            padding-bottom: 90px;
         }
 
         .snippet-card {
@@ -157,6 +152,7 @@
 
         .chevron {
             transition: transform 0.2s ease;
+            flex-shrink: 0;
         }
 
         .chevron.open {
@@ -167,6 +163,12 @@
             font-size: 18px;
             font-weight: bold;
             user-select: none;
+        }
+
+        .snippet-meta {
+            font-size: 11px;
+            color: #bbb;
+            margin-top: 3px;
         }
 
         .snippet-actions {
@@ -183,28 +185,52 @@
             display: block;
         }
 
+        /* In-card search bar */
+        .card-search-bar {
+            display: none;
+            align-items: center;
+            background: #f0f0f0;
+            border-radius: 4px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .card-search-bar.visible {
+            display: flex;
+        }
+
+        .card-search-bar input {
+            background: transparent;
+            padding: 2px 0;
+            font-size: 13px;
+            border-radius: 0;
+            flex: 1;
+        }
+
+        .card-search-bar .match-count {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+
         .snippet-content-wrapper {
             position: relative;
         }
 
-        /* ----------------------------------
-           针对展示代码区的最高高度限制 (80%视口高度)
-           ---------------------------------- */
         .snippet-content {
             background-color: #f5f5f5;
             padding: 15px;
+            padding-top: 44px;
             border-radius: 4px;
             white-space: pre-wrap;
             word-break: break-all;
             font-size: 14px;
             line-height: 1.6;
-            
-            /* 增加最大高度限制并开启内部滚动 */
             max-height: 80vh;
             overflow-y: auto;
         }
 
-        /* 美化滚动条，契合极简风 */
         .snippet-content::-webkit-scrollbar,
         #editCode::-webkit-scrollbar {
             width: 6px;
@@ -219,21 +245,35 @@
             background: transparent;
         }
 
-        /* 优化后的注释样式：更浅的灰色 + 斜体 */
         .code-comment {
-            color: #999; 
+            color: #999;
             font-style: italic;
         }
 
-        .btn-copy {
+        mark.code-highlight {
+            background-color: #ffe066;
+            color: inherit;
+            border-radius: 2px;
+        }
+
+        /* Toolbar: scroll-top, scroll-bottom, search, copy */
+        .content-toolbar {
             position: absolute;
             top: 10px;
             right: 10px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .content-toolbar button {
             background: #fff;
             padding: 5px;
             border-radius: 4px;
-            /* 确保复制按钮位于滚动层之上 */
-            z-index: 10;
+        }
+
+        .content-toolbar button:active {
+            background: #e8e8e8;
         }
 
         .modal {
@@ -323,6 +363,33 @@
             display: none;
         }
 
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 28px;
+            right: 24px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 500;
+            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .fab:active {
+            transform: scale(0.92);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .fab svg {
+            fill: #fff;
+        }
+
         @media (max-width: 600px) {
             header {
                 flex-direction: column;
@@ -349,7 +416,7 @@
             <button onclick="openModal('tagModal')" title="管理标签">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2 13.364L10.636 22H22V10.636L13.364 2H2v11.364zm2-1.414V4h7.55l8.45 8.45v7.55l-8.45-8.45L4 11.95zm5-4.45a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path></svg>
             </button>
-            <button onclick="openModal('editModal')" title="添加 CSS">
+            <button onclick="openAddModal()" title="添加 CSS">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
             </button>
             <button onclick="exportData()" title="导出数据">
@@ -363,9 +430,14 @@
     </header>
 
     <div class="tags-container" id="tagsFilterContainer"></div>
-
     <div class="snippets" id="snippetsContainer"></div>
 
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="openAddModal()" title="添加 CSS">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
+    </button>
+
+    <!-- Edit / Add Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -395,6 +467,7 @@
         </div>
     </div>
 
+    <!-- Tag Manager Modal -->
     <div class="modal" id="tagModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -422,32 +495,51 @@
     <script>
         const SUPABASE_URL = 'https://bgimdvzikaoauuvgsehn.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnaW1kdnppa2FvYXV1dmdzZWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzA0OTcsImV4cCI6MjA5MjYwNjQ5N30.ee_yctmUGZso5oVqoCdXCFcsC7baWzO-HP6-AP0xOF0';
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let state = { tags: [], snippets: [], activeTag: null, searchQuery: '' };
+        const API_HEADERS = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        };
 
+        let state = { tags: [], snippets: [], activeTags: [], searchQuery: '' };
+
+        // ── Supabase via fetch (no SDK, no WebSocket) ──────────────────────
         async function loadData() {
-            const { data, error } = await db
-                .from('app_data')
-                .select('data')
-                .eq('id', 'css_mgr')
-                .single();
-            if (data && data.data) {
-                state = { ...state, ...data.data };
-                if (!state.tags) state.tags = [];
-                if (!state.snippets) state.snippets = [];
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/app_data?id=eq.css_mgr&select=data`,
+                    { headers: API_HEADERS }
+                );
+                const rows = await res.json();
+                if (rows && rows[0] && rows[0].data) {
+                    const d = rows[0].data;
+                    state.tags = d.tags || [];
+                    state.snippets = d.snippets || [];
+                }
+            } catch (e) {
+                console.error('loadData failed', e);
             }
             renderAll();
         }
 
         async function saveData() {
-            await db.from('app_data').upsert({
-                id: 'css_mgr',
-                data: { tags: state.tags, snippets: state.snippets }
-            });
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/app_data`, {
+                    method: 'POST',
+                    headers: { ...API_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+                    body: JSON.stringify({
+                        id: 'css_mgr',
+                        data: { tags: state.tags, snippets: state.snippets }
+                    })
+                });
+            } catch (e) {
+                console.error('saveData failed', e);
+            }
             renderAll();
         }
 
+        // ── Render ─────────────────────────────────────────────────────────
         function renderAll() {
             renderFilterTags();
             renderSnippets();
@@ -457,27 +549,44 @@
 
         function renderFilterTags() {
             const container = document.getElementById('tagsFilterContainer');
-            container.innerHTML = `<div class="tag ${state.activeTag === null ? 'active' : ''}" onclick="filterByTag(null)">全部</div>`;
+            const allActive = state.activeTags.length === 0;
+            container.innerHTML = `<div class="tag ${allActive ? 'active' : ''}" onclick="filterByTag(null)">全部</div>`;
             state.tags.forEach(tag => {
-                container.innerHTML += `<div class="tag ${state.activeTag === tag ? 'active' : ''}" onclick="filterByTag('${tag}')">${tag}</div>`;
+                const isActive = state.activeTags.includes(tag);
+                container.innerHTML += `<div class="tag ${isActive ? 'active' : ''}" onclick="filterByTag('${escAttr(tag)}')">${escapeHTML(tag)}</div>`;
             });
+        }
+
+        function filterByTag(tag) {
+            if (tag === null) {
+                state.activeTags = [];
+            } else {
+                const idx = state.activeTags.indexOf(tag);
+                if (idx > -1) state.activeTags.splice(idx, 1);
+                else state.activeTags.push(tag);
+            }
+            renderSnippets();
+            renderFilterTags();
         }
 
         function toggleSnippet(id) {
             const body = document.getElementById(`body-${id}`);
             const chevron = document.getElementById(`chevron-${id}`);
-            if (body.classList.contains('open')) {
-                body.classList.remove('open');
-                chevron.classList.remove('open');
-            } else {
-                body.classList.add('open');
-                chevron.classList.add('open');
-            }
+            if (!body) return;
+            const isOpen = body.classList.contains('open');
+            body.classList.toggle('open', !isOpen);
+            chevron.classList.toggle('open', !isOpen);
         }
 
-        function highlightCommentsAndHTML(code) {
-            let escaped = escapeHTML(code);
-            return escaped.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="code-comment">$1</span>');
+        function highlightComments(code) {
+            return escapeHTML(code).replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="code-comment">$1</span>');
+        }
+
+        function formatDate(ts) {
+            if (!ts) return '';
+            const d = new Date(ts);
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
         }
 
         function renderSnippets() {
@@ -489,35 +598,64 @@
                 const q = state.searchQuery.toLowerCase();
                 filtered = filtered.filter(s => s.name.toLowerCase().includes(q));
             }
-            if (state.activeTag) {
-                filtered = filtered.filter(s => s.tags && s.tags.includes(state.activeTag));
+            if (state.activeTags.length > 0) {
+                filtered = filtered.filter(s => s.tags && state.activeTags.every(t => s.tags.includes(t)));
             }
 
             filtered.forEach(snippet => {
-                const snippetTags = snippet.tags ? snippet.tags.map(t => `<span class="tag">${t}</span>`).join('') : '';
+                const sid = snippet.id;
+                const snippetTags = snippet.tags
+                    ? snippet.tags.map(t => `<span class="tag">${escapeHTML(t)}</span>`).join('')
+                    : '';
+                const updatedAt = formatDate(snippet.updatedAt);
+
                 container.innerHTML += `
                     <div class="snippet-card">
-                        <div class="snippet-header" onclick="toggleSnippet('${snippet.id}')">
+                        <div class="snippet-header" onclick="toggleSnippet('${sid}')">
                             <div class="snippet-title-group">
-                                <svg id="chevron-${snippet.id}" class="chevron" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M13.1716 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1716 12.0007Z"></path></svg>
-                                <div class="snippet-title">${snippet.name}</div>
+                                <svg id="chevron-${sid}" class="chevron" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                    <path d="M13.1716 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1716 12.0007Z"/>
+                                </svg>
+                                <div>
+                                    <div class="snippet-title">${escapeHTML(snippet.name)}</div>
+                                    ${updatedAt ? `<div class="snippet-meta">修改于 ${updatedAt}</div>` : ''}
+                                </div>
                             </div>
                             <div class="snippet-actions" onclick="event.stopPropagation()">
-                                <button onclick="openEditModal('${snippet.id}')" title="编辑">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.757 3l-2 2H5v14h14V9.243l2-2V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12.757zm3.728-.9l1.414 1.414-9.9 9.9-1.414-1.414 9.9-9.9z"></path></svg>
+                                <button onclick="openEditModal('${sid}')" title="编辑">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.757 3l-2 2H5v14h14V9.243l2-2V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h12.757zm3.728-.9l1.414 1.414-9.9 9.9-1.414-1.414 9.9-9.9z"/></svg>
                                 </button>
-                                <button onclick="deleteSnippet('${snippet.id}')" title="删除">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"></path></svg>
+                                <button onclick="deleteSnippet('${sid}')" title="删除">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"/></svg>
                                 </button>
                             </div>
                         </div>
-                        <div class="snippet-body" id="body-${snippet.id}">
+                        <div class="snippet-body" id="body-${sid}">
                             <div class="tags-container" style="margin-bottom: 15px;">${snippetTags}</div>
-                            <div class="snippet-content-wrapper">
-                                <button class="btn-copy" onclick="copyCode(this, '${snippet.id}')" title="一键复制">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 4V2h14v14h-2V4H7zM3 6h14v14H3V6zm2 2v10h10V8H5z"></path></svg>
+                            <div class="card-search-bar" id="csbar-${sid}">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="#999"><path d="M18.031 16.617L22.314 20.9l-1.414 1.414-4.284-4.284A9 9 0 1 1 20 11c0 2.124-.763 4.063-2.031 5.569l.062.048zM11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg>
+                                <input type="text" id="csinput-${sid}" placeholder="在此条目内搜索..." oninput="searchInCard('${sid}', this.value)">
+                                <span class="match-count" id="csmatch-${sid}"></span>
+                                <button onclick="closeCardSearch('${sid}')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                                 </button>
-                                <div class="snippet-content">${highlightCommentsAndHTML(snippet.code)}</div>
+                            </div>
+                            <div class="snippet-content-wrapper">
+                                <div class="content-toolbar">
+                                    <button onclick="scrollContent('${sid}','top')" title="回顶部">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/></svg>
+                                    </button>
+                                    <button onclick="scrollContent('${sid}','bottom')" title="跳底部">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z"/></svg>
+                                    </button>
+                                    <button onclick="toggleCardSearch('${sid}')" title="条目内搜索">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.031 16.617L22.314 20.9l-1.414 1.414-4.284-4.284A9 9 0 1 1 20 11c0 2.124-.763 4.063-2.031 5.569l.062.048zM11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg>
+                                    </button>
+                                    <button onclick="copyCode(this,'${sid}')" title="一键复制">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M7 4V2h14v14h-2V4H7zM3 6h14v14H3V6zm2 2v10h10V8H5z"/></svg>
+                                    </button>
+                                </div>
+                                <div class="snippet-content" id="content-${sid}">${highlightComments(snippet.code)}</div>
                             </div>
                         </div>
                     </div>
@@ -525,14 +663,67 @@
             });
         }
 
+        // ── In-card scroll ─────────────────────────────────────────────────
+        function scrollContent(id, dir) {
+            const el = document.getElementById(`content-${id}`);
+            if (!el) return;
+            el.scrollTo({ top: dir === 'top' ? 0 : el.scrollHeight, behavior: 'smooth' });
+        }
+
+        // ── In-card search ─────────────────────────────────────────────────
+        function toggleCardSearch(id) {
+            const bar = document.getElementById(`csbar-${id}`);
+            if (!bar) return;
+            const willShow = !bar.classList.contains('visible');
+            bar.classList.toggle('visible', willShow);
+            if (willShow) {
+                document.getElementById(`csinput-${id}`).focus();
+            } else {
+                closeCardSearch(id);
+            }
+        }
+
+        function closeCardSearch(id) {
+            const bar = document.getElementById(`csbar-${id}`);
+            if (bar) bar.classList.remove('visible');
+            const inp = document.getElementById(`csinput-${id}`);
+            if (inp) inp.value = '';
+            searchInCard(id, '');
+        }
+
+        function searchInCard(id, query) {
+            const el = document.getElementById(`content-${id}`);
+            const matchEl = document.getElementById(`csmatch-${id}`);
+            const snippet = state.snippets.find(s => s.id === id);
+            if (!el || !snippet) return;
+
+            const base = highlightComments(snippet.code);
+
+            if (!query.trim()) {
+                el.innerHTML = base;
+                if (matchEl) matchEl.textContent = '';
+                return;
+            }
+
+            const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${safe})(?![^<]*>)`, 'gi');
+            let count = 0;
+            const highlighted = base.replace(regex, m => { count++; return `<mark class="code-highlight">${m}</mark>`; });
+            el.innerHTML = highlighted;
+            if (matchEl) matchEl.textContent = count > 0 ? `${count} 处` : '无匹配';
+            const first = el.querySelector('mark.code-highlight');
+            if (first) first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        // ── Tags ───────────────────────────────────────────────────────────
         function renderManageTags() {
             const container = document.getElementById('manageTagsContainer');
             container.innerHTML = '';
             state.tags.forEach(tag => {
                 container.innerHTML += `
-                    <div class="tag" onclick="deleteTag('${tag}')" title="点击删除">
-                        ${tag}
-                        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
+                    <div class="tag" onclick="deleteTag('${escAttr(tag)}')" title="点击删除">
+                        ${escapeHTML(tag)}
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                     </div>
                 `;
             });
@@ -544,33 +735,30 @@
             state.tags.forEach(tag => {
                 container.innerHTML += `
                     <label class="tag-toggle">
-                        <input type="checkbox" value="${tag}" class="tag-checkbox">
-                        <span class="tag-text">${tag}</span>
+                        <input type="checkbox" value="${escAttr(tag)}" class="tag-checkbox">
+                        <span class="tag-text">${escapeHTML(tag)}</span>
                     </label>
                 `;
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            state.searchQuery = e.target.value;
-            renderSnippets();
-        });
-
-        function filterByTag(tag) {
-            state.activeTag = tag;
-            renderSnippets();
-            renderFilterTags();
-        }
-
+        // ── Modal helpers ──────────────────────────────────────────────────
         function openModal(id) { document.getElementById(id).classList.add('active'); }
+
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
-            if(id === 'editModal') {
+            if (id === 'editModal') {
                 document.getElementById('editId').value = '';
                 document.getElementById('editName').value = '';
                 document.getElementById('editCode').value = '';
+                document.getElementById('modalTitle').innerText = '添加 CSS';
                 document.querySelectorAll('.tag-checkbox').forEach(cb => cb.checked = false);
             }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = '添加 CSS';
+            openModal('editModal');
         }
 
         function openEditModal(id) {
@@ -587,21 +775,20 @@
             openModal('editModal');
         }
 
+        // ── CRUD ───────────────────────────────────────────────────────────
         function saveSnippet() {
             const id = document.getElementById('editId').value;
             const name = document.getElementById('editName').value.trim();
             const code = document.getElementById('editCode').value.trim();
             if (!name || !code) return alert('名称和代码不能为空');
-
             const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
-
+            const now = Date.now();
             if (id) {
-                const index = state.snippets.findIndex(s => s.id === id);
-                if (index > -1) state.snippets[index] = { id, name, code, tags: selectedTags };
+                const idx = state.snippets.findIndex(s => s.id === id);
+                if (idx > -1) state.snippets[idx] = { id, name, code, tags: selectedTags, updatedAt: now };
             } else {
-                state.snippets.unshift({ id: Date.now().toString(), name, code, tags: selectedTags });
+                state.snippets.unshift({ id: now.toString(), name, code, tags: selectedTags, updatedAt: now });
             }
-
             saveData();
             closeModal('editModal');
         }
@@ -627,74 +814,44 @@
             if (confirm(`确定删除标签 "${tag}" 吗？这会从所有关联的 CSS 中移除该标签。`)) {
                 state.tags = state.tags.filter(t => t !== tag);
                 state.snippets.forEach(s => { if (s.tags) s.tags = s.tags.filter(t => t !== tag); });
-                if(state.activeTag === tag) state.activeTag = null;
+                state.activeTags = state.activeTags.filter(t => t !== tag);
                 saveData();
             }
         }
 
+        // ── Copy ───────────────────────────────────────────────────────────
         function copyCode(btn, id) {
             const snippet = state.snippets.find(s => s.id === id);
             if (!snippet) return;
-            
-            const codeToCopy = snippet.code;
-
             const showSuccess = () => {
-                const originalSvg = btn.innerHTML;
-                btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"></path></svg>`;
-                setTimeout(() => btn.innerHTML = originalSvg, 1500);
+                const orig = btn.innerHTML;
+                btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/></svg>`;
+                setTimeout(() => btn.innerHTML = orig, 1500);
             };
-
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(codeToCopy)
-                    .then(showSuccess)
-                    .catch(err => fallbackCopy(codeToCopy, showSuccess));
+                navigator.clipboard.writeText(snippet.code).then(showSuccess).catch(() => fallbackCopy(snippet.code, showSuccess));
             } else {
-                fallbackCopy(codeToCopy, showSuccess);
+                fallbackCopy(snippet.code, showSuccess);
             }
         }
 
-        function fallbackCopy(text, successCallback) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            
-            textArea.style.position = "fixed";
-            textArea.style.top = "0";
-            textArea.style.left = "0";
-            textArea.style.width = "2em";
-            textArea.style.height = "2em";
-            textArea.style.padding = "0";
-            textArea.style.border = "none";
-            textArea.style.outline = "none";
-            textArea.style.boxShadow = "none";
-            textArea.style.background = "transparent";
-            
-            document.body.appendChild(textArea);
-            
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    successCallback();
-                } else {
-                    alert('复制失败，请尝试手动长按全选复制');
-                }
-            } catch (err) {
-                alert('您的设备不支持一键复制，请长按全选复制');
-            }
-            
-            document.body.removeChild(textArea);
+        function fallbackCopy(text, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;';
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            try { if (document.execCommand('copy')) cb(); else alert('复制失败，请手动长按全选复制'); }
+            catch { alert('设备不支持一键复制，请长按全选复制'); }
+            document.body.removeChild(ta);
         }
 
+        // ── Export / Import ────────────────────────────────────────────────
         function exportData() {
-            const dataStr = JSON.stringify({ tags: state.tags, snippets: state.snippets }, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
+            const blob = new Blob([JSON.stringify({ tags: state.tags, snippets: state.snippets }, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `css-mgr-backup-${new Date().getTime()}.json`;
-            a.click();
+            a.href = url; a.download = `css-mgr-backup-${Date.now()}.json`; a.click();
             URL.revokeObjectURL(url);
         }
 
@@ -702,7 +859,7 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = e => {
                 try {
                     const parsed = JSON.parse(e.target.result);
                     if (parsed.snippets && Array.isArray(parsed.snippets)) {
@@ -711,16 +868,26 @@
                         saveData();
                         alert('数据导入成功！');
                     } else alert('文件格式错误！');
-                } catch (err) { alert('文件解析失败！'); }
+                } catch { alert('文件解析失败！'); }
             };
             reader.readAsText(file);
             event.target.value = '';
         }
 
+        // ── Utils ──────────────────────────────────────────────────────────
+        document.getElementById('searchInput').addEventListener('input', e => {
+            state.searchQuery = e.target.value;
+            renderSnippets();
+        });
+
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
+            return String(str).replace(/[&<>'"]/g,
+                t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t])
             );
+        }
+
+        function escAttr(str) {
+            return String(str).replace(/'/g, "\\'");
         }
 
         loadData();
