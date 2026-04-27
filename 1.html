@@ -3,404 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CSS Mgr">
     <link rel="apple-touch-icon" href="https://iili.io/B4t9G6P.md.png">
-    
     <title>极简 CSS 管理</title>
     <style>
         @import url("https://fontsapi.zeoseven.com/285/main/result.css");
         @import url("https://fontsapi.zeoseven.com/327/main/result.css");
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            border: none;
-            outline: none;
-            color: #000;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; border: none; outline: none; color: #000; }
 
         body, button, input, textarea, select, .snippet-content {
             font-family: "Abyssinica SIL", "Noto Serif CJK", sans-serif;
             font-weight: normal;
         }
 
-        body {
-            background-color: #fff;
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        body { background-color: #fff; padding: 20px; max-width: 1000px; margin: 0 auto; }
 
-        button {
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        button { background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         input, textarea, select {
-            background-color: #f5f5f5;
-            padding: 12px;
-            border-radius: 4px;
-            width: 100%;
-            font-size: 14px;
-            -webkit-appearance: none;
+            background-color: #f5f5f5; padding: 12px; border-radius: 4px;
+            width: 100%; font-size: 14px; -webkit-appearance: none;
         }
 
-        textarea {
-            resize: none;
-            min-height: 150px;
-        }
-
-        #editCode {
-            flex: 1;
-            min-height: 250px;
-            resize: none;
-        }
+        textarea { resize: none; min-height: 150px; }
+        #editCode { flex: 1; min-height: 250px; resize: none; }
 
         header {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            display: flex; flex-wrap: wrap; gap: 15px; align-items: center;
+            justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px;
         }
 
-        .actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+        .actions { display: flex; gap: 15px; align-items: center; }
 
         .search-bar {
-            flex-grow: 1;
-            max-width: 400px;
-            display: flex;
-            align-items: center;
-            background: #f5f5f5;
-            border-radius: 4px;
-            padding: 0 10px;
+            flex-grow: 1; max-width: 400px; display: flex; align-items: center;
+            background: #f5f5f5; border-radius: 4px; padding: 0 10px;
         }
+        .search-bar input { background: transparent; padding-left: 5px; flex-grow: 1; }
 
-        .search-bar input {
-            background: transparent;
-            padding-left: 5px;
-            flex-grow: 1;
-        }
-
-        .tags-container {
-            margin-bottom: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
+        .tags-container { margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
         .tag {
-            background-color: #f0f0f0;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            border-radius: 4px;
-            transition: background-color 0.15s;
+            background-color: #f0f0f0; padding: 6px 12px; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; gap: 5px; border-radius: 4px; transition: background-color 0.15s;
         }
+        .tag.active { background-color: #000; color: #fff; }
+        .tag.active svg { fill: #fff; }
 
-        .tag.active {
-            background-color: #000;
-            color: #fff;
-        }
+        .snippets { display: flex; flex-direction: column; gap: 20px; padding-bottom: 90px; }
 
-        .tag.active svg {
-            fill: #fff;
-        }
+        .snippet-card { background-color: #fcfcfc; padding: 20px; border-radius: 8px; }
 
-        .snippets {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding-bottom: 90px;
-        }
+        .snippet-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
 
-        .snippet-card {
-            background-color: #fcfcfc;
-            padding: 20px;
-            border-radius: 8px;
-        }
+        .snippet-title-group { display: flex; align-items: center; gap: 10px; }
 
-        .snippet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
+        .chevron { transition: transform 0.2s ease; flex-shrink: 0; }
+        .chevron.open { transform: rotate(90deg); }
 
-        .snippet-title-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .snippet-title { font-size: 18px; font-weight: bold; user-select: none; }
+        .snippet-meta { font-size: 11px; color: #bbb; margin-top: 3px; }
 
-        .chevron {
-            transition: transform 0.2s ease;
-            flex-shrink: 0;
-        }
+        .title-highlight { background: #ffe066; border-radius: 2px; }
 
-        .chevron.open {
-            transform: rotate(90deg);
-        }
+        .snippet-actions { display: flex; gap: 10px; }
 
-        .snippet-title {
-            font-size: 18px;
-            font-weight: bold;
-            user-select: none;
-        }
+        .snippet-body { display: none; margin-top: 15px; }
+        .snippet-body.open { display: block; }
 
-        .snippet-meta {
-            font-size: 11px;
-            color: #bbb;
-            margin-top: 3px;
-        }
-
-        .snippet-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .snippet-body {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .snippet-body.open {
-            display: block;
-        }
-
-        /* In-card search bar */
         .card-search-bar {
-            display: none;
-            align-items: center;
-            background: #f0f0f0;
-            border-radius: 4px;
-            padding: 6px 10px;
-            margin-bottom: 10px;
-            gap: 8px;
+            display: none; align-items: center; background: #f0f0f0;
+            border-radius: 4px; padding: 6px 10px; margin-bottom: 10px; gap: 6px;
         }
-
-        .card-search-bar.visible {
-            display: flex;
-        }
-
+        .card-search-bar.visible { display: flex; }
         .card-search-bar input {
-            background: transparent;
-            padding: 2px 0;
-            font-size: 13px;
-            border-radius: 0;
-            flex: 1;
+            background: transparent; padding: 2px 0; font-size: 13px; border-radius: 0; flex: 1;
         }
+        .card-search-bar .match-count { font-size: 12px; color: #999; white-space: nowrap; }
+        .card-search-bar button { padding: 3px; }
 
-        .card-search-bar .match-count {
-            font-size: 12px;
-            color: #999;
-            white-space: nowrap;
-        }
-
-        .snippet-content-wrapper {
-            position: relative;
-        }
+        .snippet-content-wrapper { position: relative; }
 
         .snippet-content {
-            background-color: #f5f5f5;
-            padding: 15px;
-            padding-top: 44px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-size: 14px;
-            line-height: 1.6;
-            max-height: 80vh;
-            overflow-y: auto;
+            background-color: #f5f5f5; padding: 15px; padding-top: 44px; border-radius: 4px;
+            white-space: pre-wrap; word-break: break-all; font-size: 14px; line-height: 1.6;
+            max-height: 80vh; overflow-y: auto;
         }
 
-        .snippet-content::-webkit-scrollbar,
-        #editCode::-webkit-scrollbar {
-            width: 6px;
-        }
-        .snippet-content::-webkit-scrollbar-thumb,
-        #editCode::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 3px;
-        }
-        .snippet-content::-webkit-scrollbar-track,
-        #editCode::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .snippet-content::-webkit-scrollbar, #editCode::-webkit-scrollbar { width: 6px; }
+        .snippet-content::-webkit-scrollbar-thumb, #editCode::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+        .snippet-content::-webkit-scrollbar-track, #editCode::-webkit-scrollbar-track { background: transparent; }
 
-        .code-comment {
-            color: #999;
-            font-style: italic;
-        }
+        .code-comment { color: #999; font-style: italic; }
 
-        mark.code-highlight {
-            background-color: #ffe066;
-            color: inherit;
-            border-radius: 2px;
-        }
+        mark.code-highlight { background-color: #ffe066; color: inherit; border-radius: 2px; }
+        mark.code-highlight-active { background-color: #ffa500; color: inherit; border-radius: 2px; }
 
-        /* Toolbar: scroll-top, scroll-bottom, search, copy */
         .content-toolbar {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 6px;
-            z-index: 10;
+            position: absolute; top: 10px; right: 10px;
+            display: flex; gap: 6px; z-index: 10;
         }
-
-        .content-toolbar button {
-            background: #fff;
-            padding: 5px;
-            border-radius: 4px;
-        }
-
-        .content-toolbar button:active {
-            background: #e8e8e8;
-        }
+        .content-toolbar button { background: #fff; padding: 5px; border-radius: 4px; }
+        .content-toolbar button:active { background: #e8e8e8; }
 
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255,255,255,0.95); z-index: 1000;
+            justify-content: center; align-items: center;
         }
-
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
-            width: 100%;
-            max-width: 600px;
-            background: #fff;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-height: 90vh;
-            overflow-y: auto;
+            width: 100%; max-width: 600px; background: #fff; padding: 30px;
+            padding-bottom: 90px;
+            display: flex; flex-direction: column; gap: 20px;
+            max-height: 90vh; overflow-y: auto;
         }
 
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 20px;
-            font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 20px; font-weight: bold;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 0 0 auto;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+        .form-group:has(#editCode) { flex: 1 1 auto; min-height: 0; }
+        .form-group label { font-size: 14px; font-weight: bold; }
 
-        .form-group:has(#editCode) {
-            flex: 1 1 auto;
-            min-height: 0;
-        }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
 
-        .form-group label {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .tag-toggle {
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .tag-checkbox {
-            display: none;
-        }
-
+        .tag-toggle { cursor: pointer; display: inline-flex; align-items: center; }
+        .tag-checkbox { display: none; }
         .tag-text {
-            background-color: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            white-space: nowrap;
-            transition: background-color 0.2s;
+            background-color: #fff; padding: 6px 12px; border-radius: 4px;
+            font-size: 14px; white-space: nowrap; transition: background-color 0.2s;
         }
+        .tag-checkbox:checked + .tag-text { background-color: #f0f0f0; }
 
-        .tag-checkbox:checked + .tag-text {
-            background-color: #f0f0f0;
-        }
+        #fileInput { display: none; }
 
-        #fileInput {
-            display: none;
-        }
-
-        /* Floating Action Button */
         .fab {
-            position: fixed;
-            bottom: 28px;
-            right: 24px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 500;
-            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
+            position: fixed; border-radius: 50%; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 2px 14px rgba(0,0,0,0.18);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
+        .fab:active { transform: scale(0.92); box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+        .fab svg { fill: #fff; }
 
-        .fab:active {
-            transform: scale(0.92);
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
-        }
+        #fabAdd { bottom: 28px; right: 24px; width: 52px; height: 52px; z-index: 500; }
 
-        .fab svg {
-            fill: #fff;
-        }
+        #fabSave { bottom: 28px; right: 24px; width: 52px; height: 52px; z-index: 1100; display: none; }
+        #fabSave.visible { display: flex; }
 
         @media (max-width: 600px) {
-            header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .actions {
-                justify-content: space-between;
-            }
-            .search-bar {
-                max-width: 100%;
-            }
+            header { flex-direction: column; align-items: stretch; }
+            .actions { justify-content: space-between; }
+            .search-bar { max-width: 100%; }
         }
     </style>
 </head>
@@ -409,21 +170,18 @@
     <header>
         <h2>CSS Mgr</h2>
         <div class="search-bar">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.031 16.617L22.314 20.9l-1.414 1.414-4.284-4.284A9 9 0 1 1 20 11c0 2.124-.763 4.063-2.031 5.569l.062.048zM11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg>
             <input type="text" id="searchInput" placeholder="搜索 CSS 名称...">
         </div>
         <div class="actions">
             <button onclick="openModal('tagModal')" title="管理标签">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2 13.364L10.636 22H22V10.636L13.364 2H2v11.364zm2-1.414V4h7.55l8.45 8.45v7.55l-8.45-8.45L4 11.95zm5-4.45a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path></svg>
-            </button>
-            <button onclick="openAddModal()" title="添加 CSS">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2 13.364L10.636 22H22V10.636L13.364 2H2v11.364zm2-1.414V4h7.55l8.45 8.45v7.55l-8.45-8.45L4 11.95zm5-4.45a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
             </button>
             <button onclick="exportData()" title="导出数据">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 19h18v2H3v-2zm10-10.999L19.071 14l1.414-1.414L12 4l-8.485 8.485L4.929 14 11 8.001V17h2V8.001z"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 19h18v2H3v-2zm10-10.999L19.071 14l1.414-1.414L12 4l-8.485 8.485L4.929 14 11 8.001V17h2V8.001z"/></svg>
             </button>
             <button onclick="document.getElementById('fileInput').click()" title="导入数据">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 19h18v2H3v-2zm10-5.828L19.071 7.1l1.414 1.414L12 17 3.515 8.515 4.929 7.1 11 13.172V2h2v11.172z"></path></svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 19h18v2H3v-2zm10-5.828L19.071 7.1l1.414 1.414L12 17 3.515 8.515 4.929 7.1 11 13.172V2h2v11.172z"/></svg>
                 <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
             </button>
         </div>
@@ -432,18 +190,20 @@
     <div class="tags-container" id="tagsFilterContainer"></div>
     <div class="snippets" id="snippetsContainer"></div>
 
-    <!-- Floating Action Button -->
-    <button class="fab" onclick="openAddModal()" title="添加 CSS">
-        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
+    <button id="fabAdd" class="fab" onclick="openAddModal()" title="添加 CSS">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
     </button>
 
-    <!-- Edit / Add Modal -->
+    <button id="fabSave" class="fab" onclick="saveSnippet()" title="保存">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/></svg>
+    </button>
+
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="modalTitle">添加 CSS</span>
                 <button onclick="closeModal('editModal')">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                 </button>
             </div>
             <input type="hidden" id="editId">
@@ -459,35 +219,29 @@
                 <label>分配标签</label>
                 <div class="checkbox-group" id="editTagsGroup"></div>
             </div>
-            <div style="display: flex; justify-content: flex-end; padding-top: 10px;">
-                <button onclick="saveSnippet()" title="保存修改">
-                    <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"></path></svg>
-                </button>
-            </div>
         </div>
     </div>
 
-    <!-- Tag Manager Modal -->
     <div class="modal" id="tagModal">
-        <div class="modal-content">
+        <div class="modal-content" style="padding-bottom:30px;">
             <div class="modal-header">
                 <span>管理标签</span>
                 <button onclick="closeModal('tagModal')">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path></svg>
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                 </button>
             </div>
             <div class="form-group">
                 <label>新增标签</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="display:flex;gap:10px;align-items:center;">
                     <input type="text" id="newTagName" placeholder="输入新标签名">
                     <button onclick="addTag()" title="添加">
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"></path></svg>
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
                     </button>
                 </div>
             </div>
             <div class="form-group">
                 <label>现有标签 (点击删除)</label>
-                <div class="tags-container" id="manageTagsContainer" style="margin-bottom: 0;"></div>
+                <div class="tags-container" id="manageTagsContainer" style="margin-bottom:0;"></div>
             </div>
         </div>
     </div>
@@ -503,8 +257,8 @@
         };
 
         let state = { tags: [], snippets: [], activeTags: [], searchQuery: '' };
+        const cardSearchState = {};
 
-        // ── Supabase via fetch (no SDK, no WebSocket) ──────────────────────
         async function loadData() {
             try {
                 const res = await fetch(
@@ -517,9 +271,7 @@
                     state.tags = d.tags || [];
                     state.snippets = d.snippets || [];
                 }
-            } catch (e) {
-                console.error('loadData failed', e);
-            }
+            } catch (e) { console.error('loadData failed', e); }
             renderAll();
         }
 
@@ -528,18 +280,12 @@
                 await fetch(`${SUPABASE_URL}/rest/v1/app_data`, {
                     method: 'POST',
                     headers: { ...API_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify({
-                        id: 'css_mgr',
-                        data: { tags: state.tags, snippets: state.snippets }
-                    })
+                    body: JSON.stringify({ id: 'css_mgr', data: { tags: state.tags, snippets: state.snippets } })
                 });
-            } catch (e) {
-                console.error('saveData failed', e);
-            }
+            } catch (e) { console.error('saveData failed', e); }
             renderAll();
         }
 
-        // ── Render ─────────────────────────────────────────────────────────
         function renderAll() {
             renderFilterTags();
             renderSnippets();
@@ -558,9 +304,8 @@
         }
 
         function filterByTag(tag) {
-            if (tag === null) {
-                state.activeTags = [];
-            } else {
+            if (tag === null) { state.activeTags = []; }
+            else {
                 const idx = state.activeTags.indexOf(tag);
                 if (idx > -1) state.activeTags.splice(idx, 1);
                 else state.activeTags.push(tag);
@@ -580,6 +325,15 @@
 
         function highlightComments(code) {
             return escapeHTML(code).replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="code-comment">$1</span>');
+        }
+
+        function highlightTitle(name) {
+            if (!state.searchQuery) return escapeHTML(name);
+            const safe = state.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return escapeHTML(name).replace(
+                new RegExp(`(${safe})`, 'gi'),
+                '<span class="title-highlight">$1</span>'
+            );
         }
 
         function formatDate(ts) {
@@ -617,7 +371,7 @@
                                     <path d="M13.1716 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1716 12.0007Z"/>
                                 </svg>
                                 <div>
-                                    <div class="snippet-title">${escapeHTML(snippet.name)}</div>
+                                    <div class="snippet-title">${highlightTitle(snippet.name)}</div>
                                     ${updatedAt ? `<div class="snippet-meta">修改于 ${updatedAt}</div>` : ''}
                                 </div>
                             </div>
@@ -631,13 +385,19 @@
                             </div>
                         </div>
                         <div class="snippet-body" id="body-${sid}">
-                            <div class="tags-container" style="margin-bottom: 15px;">${snippetTags}</div>
+                            <div class="tags-container" style="margin-bottom:15px;">${snippetTags}</div>
                             <div class="card-search-bar" id="csbar-${sid}">
                                 <svg viewBox="0 0 24 24" width="14" height="14" fill="#999"><path d="M18.031 16.617L22.314 20.9l-1.414 1.414-4.284-4.284A9 9 0 1 1 20 11c0 2.124-.763 4.063-2.031 5.569l.062.048zM11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg>
                                 <input type="text" id="csinput-${sid}" placeholder="在此条目内搜索..." oninput="searchInCard('${sid}', this.value)">
+                                <button onclick="navigateCardSearch('${sid}',-1)" title="上一处">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/></svg>
+                                </button>
+                                <button onclick="navigateCardSearch('${sid}',1)" title="下一处">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z"/></svg>
+                                </button>
                                 <span class="match-count" id="csmatch-${sid}"></span>
                                 <button onclick="closeCardSearch('${sid}')">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                                 </button>
                             </div>
                             <div class="snippet-content-wrapper">
@@ -663,24 +423,19 @@
             });
         }
 
-        // ── In-card scroll ─────────────────────────────────────────────────
         function scrollContent(id, dir) {
             const el = document.getElementById(`content-${id}`);
             if (!el) return;
             el.scrollTo({ top: dir === 'top' ? 0 : el.scrollHeight, behavior: 'smooth' });
         }
 
-        // ── In-card search ─────────────────────────────────────────────────
         function toggleCardSearch(id) {
             const bar = document.getElementById(`csbar-${id}`);
             if (!bar) return;
             const willShow = !bar.classList.contains('visible');
             bar.classList.toggle('visible', willShow);
-            if (willShow) {
-                document.getElementById(`csinput-${id}`).focus();
-            } else {
-                closeCardSearch(id);
-            }
+            if (willShow) document.getElementById(`csinput-${id}`).focus();
+            else closeCardSearch(id);
         }
 
         function closeCardSearch(id) {
@@ -702,20 +457,44 @@
             if (!query.trim()) {
                 el.innerHTML = base;
                 if (matchEl) matchEl.textContent = '';
+                cardSearchState[id] = null;
                 return;
             }
 
             const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`(${safe})(?![^<]*>)`, 'gi');
             let count = 0;
-            const highlighted = base.replace(regex, m => { count++; return `<mark class="code-highlight">${m}</mark>`; });
+            const highlighted = base.replace(regex, m => {
+                return `<mark class="code-highlight" data-idx="${count++}">${m}</mark>`;
+            });
             el.innerHTML = highlighted;
-            if (matchEl) matchEl.textContent = count > 0 ? `${count} 处` : '无匹配';
-            const first = el.querySelector('mark.code-highlight');
-            if (first) first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+            const marks = Array.from(el.querySelectorAll('mark.code-highlight'));
+            cardSearchState[id] = { marks, idx: 0 };
+
+            if (matchEl) matchEl.textContent = count > 0 ? `1/${count}` : '无匹配';
+            if (marks.length) activateCardMark(id, 0);
         }
 
-        // ── Tags ───────────────────────────────────────────────────────────
+        function activateCardMark(id, idx) {
+            const s = cardSearchState[id];
+            if (!s || !s.marks.length) return;
+            s.marks.forEach((m, i) => {
+                m.className = i === idx ? 'code-highlight-active' : 'code-highlight';
+            });
+            s.idx = idx;
+            s.marks[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            const matchEl = document.getElementById(`csmatch-${id}`);
+            if (matchEl) matchEl.textContent = `${idx + 1}/${s.marks.length}`;
+        }
+
+        function navigateCardSearch(id, dir) {
+            const s = cardSearchState[id];
+            if (!s || !s.marks.length) return;
+            const next = (s.idx + dir + s.marks.length) % s.marks.length;
+            activateCardMark(id, next);
+        }
+
         function renderManageTags() {
             const container = document.getElementById('manageTagsContainer');
             container.innerHTML = '';
@@ -724,8 +503,7 @@
                     <div class="tag" onclick="deleteTag('${escAttr(tag)}')" title="点击删除">
                         ${escapeHTML(tag)}
                         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -737,12 +515,10 @@
                     <label class="tag-toggle">
                         <input type="checkbox" value="${escAttr(tag)}" class="tag-checkbox">
                         <span class="tag-text">${escapeHTML(tag)}</span>
-                    </label>
-                `;
+                    </label>`;
             });
         }
 
-        // ── Modal helpers ──────────────────────────────────────────────────
         function openModal(id) { document.getElementById(id).classList.add('active'); }
 
         function closeModal(id) {
@@ -753,12 +529,14 @@
                 document.getElementById('editCode').value = '';
                 document.getElementById('modalTitle').innerText = '添加 CSS';
                 document.querySelectorAll('.tag-checkbox').forEach(cb => cb.checked = false);
+                document.getElementById('fabSave').classList.remove('visible');
             }
         }
 
         function openAddModal() {
             document.getElementById('modalTitle').innerText = '添加 CSS';
             openModal('editModal');
+            document.getElementById('fabSave').classList.add('visible');
         }
 
         function openEditModal(id) {
@@ -773,9 +551,9 @@
                 });
             }
             openModal('editModal');
+            document.getElementById('fabSave').classList.add('visible');
         }
 
-        // ── CRUD ───────────────────────────────────────────────────────────
         function saveSnippet() {
             const id = document.getElementById('editId').value;
             const name = document.getElementById('editName').value.trim();
@@ -819,11 +597,15 @@
             }
         }
 
-        // ── Copy ───────────────────────────────────────────────────────────
+        function haptic() {
+            try { if (navigator.vibrate) navigator.vibrate(30); } catch {}
+        }
+
         function copyCode(btn, id) {
             const snippet = state.snippets.find(s => s.id === id);
             if (!snippet) return;
             const showSuccess = () => {
+                haptic();
                 const orig = btn.innerHTML;
                 btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/></svg>`;
                 setTimeout(() => btn.innerHTML = orig, 1500);
@@ -846,7 +628,6 @@
             document.body.removeChild(ta);
         }
 
-        // ── Export / Import ────────────────────────────────────────────────
         function exportData() {
             const blob = new Blob([JSON.stringify({ tags: state.tags, snippets: state.snippets }, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -874,7 +655,6 @@
             event.target.value = '';
         }
 
-        // ── Utils ──────────────────────────────────────────────────────────
         document.getElementById('searchInput').addEventListener('input', e => {
             state.searchQuery = e.target.value;
             renderSnippets();
